@@ -1,12 +1,12 @@
-# your full code goes here
-import pickle
-from flask import Flask, request, render_template
+# app.py
+import joblib
+from flask import Flask, request, jsonify
 import numpy as np
 
 app = Flask(__name__)
 
-# load model
-model = pickle.load(open("heart_disease_model.pkl", "rb"))
+# load model safely with joblib
+model = joblib.load("heart_disease_model.pkl")
 
 @app.route("/")
 def home():
@@ -14,10 +14,10 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.json
-    features = np.array([list(data.values())])
+    data = request.json  # input from user
+    features = np.array([list(data.values())])  # convert dict to array
     prediction = model.predict(features)[0]
-    return {"prediction": int(prediction)}
+    return jsonify({"prediction": int(prediction)})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
